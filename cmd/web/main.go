@@ -1,7 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type app struct {
@@ -9,5 +11,10 @@ type app struct {
 }
 
 func main() {
-	fmt.Printf("go+htmx in-book contacts app")
+	msg := "go+htmx in-book contacts app"
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, msg)
+	})
+	e.Logger.Fatal(e.Start(":3333"))
 }
