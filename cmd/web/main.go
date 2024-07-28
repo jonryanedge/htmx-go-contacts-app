@@ -11,10 +11,9 @@ type app struct {
 }
 
 func main() {
-	msg := "go+htmx in-book contacts app"
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, msg)
+		return c.Redirect(http.StatusMovedPermanently, "/contacts")
 	})
 	e.Logger.Fatal(e.Start(":3333"))
 }
