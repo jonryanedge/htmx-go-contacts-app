@@ -28,6 +28,8 @@ func GetContacts() Contacts {
 		fmt.Println(err)
 	}
 
+	defer file.Close()
+
 	byteData, _ := io.ReadAll(file)
 
 	// fmt.Println("ByteData:" + string(byteData))
