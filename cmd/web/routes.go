@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
+	"net/http"
+
 	"go.scuttlebutt.app/internal/data"
+
+	"github.com/labstack/echo/v4"
 )
 
 func getContacts(c echo.Context) error {
 	contacts := data.GetContacts()
-	fmt.Printf("contacts: %s\n", contacts)
-	return nil
+	data := fmt.Sprintf("contacts: %s\n", contacts)
+	return c.String(http.StatusOK, data)
 }
 func getContactsNew(c echo.Context) error         { return nil }
 func postContactsNew(c echo.Context) error        { return nil }

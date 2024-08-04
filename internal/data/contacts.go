@@ -37,9 +37,9 @@ func GetContacts() Contacts {
 
 	json.Unmarshal(byteData, &contacts.Contacts)
 
-	for i := 0; i < len(contacts.Contacts); i++ {
-		fmt.Println("Name: " + contacts.Contacts[i].First + " " + contacts.Contacts[i].Last)
-	}
+	// for i := 0; i < len(contacts.Contacts); i++ {
+	// 	fmt.Println("Name: " + contacts.Contacts[i].First + " " + contacts.Contacts[i].Last)
+	// }
 
 	return contacts
 
