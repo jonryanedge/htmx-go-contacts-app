@@ -15,6 +15,7 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, "/contacts")
 	})
+	e.Static("/static", "static")
 	e.GET("/contacts", getContacts)
 	e.GET("/contacts/new", getContactsNew)
 	e.POST("/contacts/new", postContactsNew)
