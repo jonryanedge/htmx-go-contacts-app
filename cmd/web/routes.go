@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	//  "encoding/json"
+	// "fmt"
 	"net/http"
 
 	"go.scuttlebutt.app/internal/data"
@@ -11,8 +12,8 @@ import (
 
 func getContacts(c echo.Context) error {
 	contacts := data.GetContacts()
-	data := fmt.Sprintf("contacts: %s\n", contacts)
-	return c.String(http.StatusOK, data)
+	// data := fmt.Sprintf("contacts: %s\n", contacts)
+	return c.JSON(http.StatusOK, contacts)
 }
 func getContactsNew(c echo.Context) error         { return nil }
 func postContactsNew(c echo.Context) error        { return nil }
