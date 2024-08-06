@@ -37,17 +37,15 @@ func GetContact(id int) (Contact, error) {
 	json.Unmarshal(byteData, &contacts.Contacts)
 
 	var contact Contact
-	for i := 0; i < len(contacts.Contacts); i++ {
-		if contacts.Contacts[i].ID == id {
-			contact = contacts.Contacts[i]
+	for _, data := range contacts.Contacts {
+		if data.ID == id {
+			contact = data
 			return contact, nil
-		} else {
-			err := errors.New("user not found")
-			return contact, err
 		}
 	}
+	err = errors.New("user not found")
 
-	return contact, nil
+	return contact, err
 }
 
 func GetContacts() Contacts {
