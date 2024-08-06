@@ -4,6 +4,7 @@ import (
 	//  "encoding/json"
 	// "fmt"
 	"net/http"
+	"strconv"
 
 	"go.scuttlebutt.app/internal/data"
 
@@ -15,9 +16,13 @@ func getContacts(c echo.Context) error {
 	// data := fmt.Sprintf("contacts: %s\n", contacts)
 	return c.JSON(http.StatusOK, contacts)
 }
-func getContactsNew(c echo.Context) error         { return nil }
-func postContactsNew(c echo.Context) error        { return nil }
-func getContact(c echo.Context) error             { return nil }
+func getContactsNew(c echo.Context) error  { return nil }
+func postContactsNew(c echo.Context) error { return nil }
+func getContact(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	contact := data.GetContact(id)
+	return c.JSON(http.StatusOK, contact)
+}
 func getContactEmail(c echo.Context) error        { return nil }
 func getContactEdit(c echo.Context) error         { return nil }
 func postContactEdit(c echo.Context) error        { return nil }

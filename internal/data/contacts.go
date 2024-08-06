@@ -20,10 +20,33 @@ type Contacts struct {
 	Contacts []Contact
 }
 
-const file string = "internal/data/contacts.json"
+const contactsFile string = "internal/data/contacts.json"
+
+func GetContact(id int) Contact {
+	file, err := os.Open(contactsFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer file.Close()
+
+	byteData, _ := io.ReadAll(file)
+
+	var contacts Contacts
+	json.Unmarshal(byteData, &contacts.Contacts)
+
+	var contact Contact
+	for i := 0; i < len(contacts.Contacts); i++ {
+		if contacts.Contacts[i].ID == id {
+			contact = contacts.Contacts[i]
+		}
+	}
+
+	return contact
+}
 
 func GetContacts() Contacts {
-	file, err := os.Open(file)
+	file, err := os.Open(contactsFile)
 	if err != nil {
 		fmt.Println(err)
 	}
