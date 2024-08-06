@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -22,7 +23,7 @@ type Contacts struct {
 
 const contactsFile string = "internal/data/contacts.json"
 
-func GetContact(id int) Contact {
+func GetContact(id int) (Contact, error) {
 	file, err := os.Open(contactsFile)
 	if err != nil {
 		fmt.Println(err)
@@ -39,10 +40,14 @@ func GetContact(id int) Contact {
 	for i := 0; i < len(contacts.Contacts); i++ {
 		if contacts.Contacts[i].ID == id {
 			contact = contacts.Contacts[i]
+			return contact, nil
+		} else {
+			err := errors.New("user not found")
+			return contact, err
 		}
 	}
 
-	return contact
+	return contact, nil
 }
 
 func GetContacts() Contacts {

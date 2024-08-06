@@ -2,7 +2,7 @@ package main
 
 import (
 	//  "encoding/json"
-	// "fmt"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -20,7 +20,10 @@ func getContactsNew(c echo.Context) error  { return nil }
 func postContactsNew(c echo.Context) error { return nil }
 func getContact(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	contact := data.GetContact(id)
+	contact, err := data.GetContact(id)
+	if err != nil {
+		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
+	}
 	return c.JSON(http.StatusOK, contact)
 }
 func getContactEmail(c echo.Context) error        { return nil }
