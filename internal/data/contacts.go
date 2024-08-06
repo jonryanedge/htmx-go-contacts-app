@@ -23,6 +23,21 @@ type Contacts struct {
 
 const contactsFile string = "internal/data/contacts.json"
 
+func GetContactCount() int {
+	file, err := os.Open(contactsFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer file.Close()
+
+	byteData, _ := io.ReadAll(file)
+	var contacts Contacts
+	json.Unmarshal(byteData, &contacts.Contacts)
+	count := len(contacts.Contacts)
+	return count
+}
+
 func GetContact(id int) (Contact, error) {
 	file, err := os.Open(contactsFile)
 	if err != nil {
