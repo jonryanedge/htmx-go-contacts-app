@@ -1,7 +1,7 @@
 {{ define "search" }}
     <form action="/contacts" method="get" class="tool-bar">
         <label for="search">Search Term</label>
-        <input id="search" type="search" name="q" value="{ request.args.get('q') or '' }"
+        <input id="search" type="search" name="q" value="{{ .Search }}"
                hx-get="/contacts"
                hx-trigger="search, keyup delay:200ms changed"
                hx-target="tbody"
