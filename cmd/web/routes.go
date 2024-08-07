@@ -11,11 +11,21 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func getContacts(c echo.Context) error {
-	contacts := data.GetContacts()
-	// data := fmt.Sprintf("contacts: %s\n", contacts)
-	return c.JSON(http.StatusOK, contacts)
+func getIndex(c echo.Context) error {
+	return c.Render(http.StatusOK, "home", nil)
 }
+
+func redirectIndex(c echo.Context) error {
+	return c.Redirect(http.StatusMovedPermanently, "/contacts")
+}
+
+func getContacts(c echo.Context) error {
+	// contacts := data.GetContacts()
+	// data := fmt.Sprintf("contacts: %s\n", contacts)
+	// return c.JSON(http.StatusOK, contacts)
+	return c.Render(http.StatusOK, "layout", nil)
+}
+
 func getContactsNew(c echo.Context) error  { return nil }
 func postContactsNew(c echo.Context) error { return nil }
 func getContact(c echo.Context) error {
@@ -26,6 +36,7 @@ func getContact(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, contact)
 }
+
 func getContactEmail(c echo.Context) error        { return nil }
 func getContactEdit(c echo.Context) error         { return nil }
 func postContactEdit(c echo.Context) error        { return nil }
@@ -35,6 +46,7 @@ func getContactsArchive(c echo.Context) error     { return nil }
 func postContactsArchive(c echo.Context) error    { return nil }
 func deleteContactsArchive(c echo.Context) error  { return nil }
 func getContactsArchiveFile(c echo.Context) error { return nil }
+
 func getContactsCount(c echo.Context) error {
 	count := data.GetContactCount()
 	return c.String(http.StatusOK, strconv.Itoa(count))
