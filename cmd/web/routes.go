@@ -49,5 +49,5 @@ func getContactsArchiveFile(c echo.Context) error { return nil }
 
 func getContactsCount(c echo.Context) error {
 	count := data.GetContactCount()
-	return c.String(http.StatusOK, strconv.Itoa(count))
+	return c.String(http.StatusOK, "("+strconv.Itoa(count)+" total contacts)")
 }
