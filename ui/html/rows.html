@@ -1,6 +1,6 @@
 {{ define "rows" }}
 
-{{ range index .Contacts }}
+{{ range .Contacts }}
     <tr>
         <td><input type="checkbox" name="selected_contact_ids" value="{{ .ID }}"
             x-model="selected"></td>
@@ -27,4 +27,8 @@
     </tr>
 {{ end }}
 
+{{ end }}
+
+{{ define "base" }}
+{{ template "rows" }}
 {{ end }}
