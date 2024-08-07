@@ -20,10 +20,24 @@ func redirectIndex(c echo.Context) error {
 }
 
 func getContacts(c echo.Context) error {
-	// contacts := data.GetContacts()
+	search := c.QueryParam("q")
+	if search != "" {
+		contacts := data.GetContacts()
+		data := map[string]interface{}{
+			"Contacts": contacts.Contacts,
+			"Archive":  contacts,
+			"Query":    search,
+		}
+		return c.Render(http.StatusOK, "rows", data)
+	}
+	contacts := data.GetContacts()
+	data := map[string]interface{}{
+		"Contacts": contacts.Contacts,
+		"Archive":  contacts,
+	}
 	// data := fmt.Sprintf("contacts: %s\n", contacts)
 	// return c.JSON(http.StatusOK, contacts)
-	return c.Render(http.StatusOK, "layout", nil)
+	return c.Render(http.StatusOK, "layout", data)
 }
 
 func getContactsNew(c echo.Context) error  { return nil }
