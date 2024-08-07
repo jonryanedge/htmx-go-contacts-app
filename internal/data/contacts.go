@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 type Contact struct {
@@ -84,4 +85,33 @@ func GetContacts() Contacts {
 
 	return contacts
 
+}
+
+func SearchContacts(q string) Contacts {
+	file, err := os.Open(contactsFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer file.Close()
+
+	byteData, _ := io.ReadAll(file)
+
+	var contacts Contacts
+	json.Unmarshal(byteData, &contacts.Contacts)
+
+	var matches []Contact
+	for _, data := range contacts.Contacts {
+		match_first := strings.ContainsAny(data.First, q)
+		match_last := strings.ContainsAny(data.Last, q)
+		match_email := strings.ContainsAny(data.Email, q)
+		match_phone := strings.ContainsAny(data.Phone, q)
+		if match_first || match_last || match_email || match_phone {
+			matches = append(matches, data)
+		}
+	}
+	results := Contacts{
+		Contacts: matches,
+	}
+	return results
 }
