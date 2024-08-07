@@ -29,7 +29,8 @@ func main() {
 	e := echo.New()
 
 	templates := make(map[string]*template.Template)
-	templates["layout"] = template.Must(template.ParseFiles("ui/html/controls.html", "ui/html/layout.html", "ui/html/base.html"))
+	templates["rows"] = template.Must(template.ParseFiles("ui/html/rows.html"))
+	templates["layout"] = template.Must(template.ParseFiles("ui/html/rows.html", "ui/html/controls.html", "ui/html/layout.html", "ui/html/base.html"))
 	templates["home"] = template.Must(template.ParseFiles("ui/html/home.html", "ui/html/base.html"))
 	e.Renderer = &TemplateRegistry{
 		templates: templates,
@@ -51,7 +52,7 @@ func main() {
 	e.DELETE("/contacts/archive", deleteContactsArchive)
 	e.GET("contacts/archive/file", getContactsArchiveFile)
 	e.GET("contacts/count", getContactsCount)
-
+	e.Debug = true
 	e.Static("/static", "static")
 
 	e.Logger.Fatal(e.Start(":3333"))
