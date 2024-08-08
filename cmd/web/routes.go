@@ -25,7 +25,7 @@ func getContacts(c echo.Context) error {
 		if search != "" {
 			contacts := data.SearchContacts(search)
 			data := map[string]interface{}{
-				"Contacts": contacts,
+				"Contacts": contacts.Contacts,
 				"Archive":  contacts,
 				"Query":    search,
 			}
