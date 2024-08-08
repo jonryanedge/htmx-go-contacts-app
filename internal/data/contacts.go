@@ -102,10 +102,10 @@ func SearchContacts(q string) Contacts {
 
 	var matches []Contact
 	for _, data := range contacts.Contacts {
-		match_first := strings.ContainsAny(data.First, q)
-		match_last := strings.ContainsAny(data.Last, q)
-		match_email := strings.ContainsAny(data.Email, q)
-		match_phone := strings.ContainsAny(data.Phone, q)
+		match_first := strings.Contains(data.First, q)
+		match_last := strings.Contains(data.Last, q)
+		match_email := strings.Contains(data.Email, q)
+		match_phone := strings.Contains(data.Phone, q)
 		if match_first || match_last || match_email || match_phone {
 			matches = append(matches, data)
 		}
