@@ -20,7 +20,8 @@ func redirectIndex(c echo.Context) error {
 }
 
 func getContacts(c echo.Context) error {
-	if len(c.QueryParams()) != 0 {
+	trigger := GetHeaders(c, "HX-Trigger")
+	if trigger == "search" {
 		search := c.QueryParam("q")
 		if search != "" {
 			contacts := data.SearchContacts(search)
@@ -88,8 +89,20 @@ func getContactEdit(c echo.Context) error {
 	return c.Render(http.StatusOK, "edit", data)
 }
 
-func postContactEdit(c echo.Context) error        { return nil }
-func deleteContact(c echo.Context) error          { return nil }
+func postContactEdit(c echo.Context) error { return nil }
+func deleteContact(c echo.Context) error {
+	trigger := GetHeaders(c, "HX-Trigger")
+	id, _ := strconv.Atoi(c.Param("id"))
+	err := data.DeleteContact(id)
+	if err != nil {
+		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
+	}
+	if trigger != "delete-btn" {
+		return c.String(http.StatusOK, "")
+	}
+	return c.Redirect(http.StatusSeeOther, "/contacts")
+}
+
 func deleteContacts(c echo.Context) error         { return nil }
 func getContactsArchive(c echo.Context) error     { return nil }
 func postContactsArchive(c echo.Context) error    { return nil }
