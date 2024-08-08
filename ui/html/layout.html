@@ -9,10 +9,10 @@
     </header>
       <!-- <div class="flash">{{ .Flash }}</div> -->
 
-  {{ template "search" .}}
-  {{ template "selected" .}}
+  {{ template "search" }}
 
     <form x-data="{ selected: [] }">
+    {{ template "selected" .}}
     <table>
         <thead>
         <tr>
