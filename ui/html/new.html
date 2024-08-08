@@ -1,0 +1,42 @@
+{{ define "title" }}New Contact - HTMX+GO Demo Application{{ end }}
+{{ define "body" }}
+<main>
+  {{ template "header" }}
+<form action="/contacts/new" method="post">
+    <fieldset>
+        <legend>Contact Values</legend>
+        <div class="table rows">
+            <p>
+                <label for="email">Email</label>
+                <input name="email" id="email" type="text" placeholder="Email" value="{{ .Contact.Email }}">
+                <!-- <span class="error">{{ .Contact.Errors.email }}</span> -->
+            </p>
+            <p>
+                <label for="first_name">First Name</label>
+                <input name="first_name" id="first_name" type="text" placeholder="First Name" value="{{ .Contact.First }}">
+                <!-- <span class="error">{{ .Contact.Errors.first }}</span> -->
+            </p>
+            <p>
+                <label for="last_name">Last Name</label>
+                <input name="last_name" id="last_name" type="text" placeholder="Last Name" value="{{ .Contact.Last }}">
+                <!-- <span class="error">{{ .Contact.Errors.last }}</span> -->
+            </p>
+            <p>
+                <label for="phone">Phone</label>
+                <input name="phone" id="phone" type="text" placeholder="Phone" value="{{ .Contact.Phone }}">
+                <!-- <span class="error">{{ .Contact.Errors.phone }}</span> -->
+            </p>
+        </div>
+        <button>Save</button>
+    </fieldset>
+</form>
+
+<p>
+    <a href="/contacts">Back</a>
+</p>
+</main>
+{{ end }}
+
+{{ define "partial" }}
+  {{ template "new" }}
+{{ end }}

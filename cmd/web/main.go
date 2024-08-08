@@ -37,6 +37,8 @@ func main() {
 
 	templates := make(map[string]*template.Template)
 	templates["rows"] = template.Must(template.ParseFiles("ui/html/rows.html"))
+	templates["new"] = template.Must(template.ParseFiles("ui/html/new.html", "ui/html/base.html"))
+	templates["view"] = template.Must(template.ParseFiles("ui/html/view.html", "ui/html/base.html"))
 	templates["layout"] = template.Must(template.ParseFiles("ui/html/rows.html", "ui/html/controls.html", "ui/html/layout.html", "ui/html/base.html"))
 	templates["home"] = template.Must(template.ParseFiles("ui/html/home.html", "ui/html/base.html"))
 	e.Renderer = &TemplateRegistry{
