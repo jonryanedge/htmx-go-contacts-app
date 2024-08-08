@@ -20,15 +20,25 @@ func redirectIndex(c echo.Context) error {
 }
 
 func getContacts(c echo.Context) error {
-	search := c.QueryParam("q")
-	if search != "" {
-		contacts := data.GetContacts()
-		data := map[string]interface{}{
-			"Contacts": contacts.Contacts,
-			"Archive":  contacts,
-			"Query":    search,
+	if len(c.QueryParams()) != 0 {
+		search := c.QueryParam("q")
+		if search != "" {
+			contacts := data.SearchContacts(search)
+			data := map[string]interface{}{
+				"Contacts": contacts,
+				"Archive":  contacts,
+				"Query":    search,
+			}
+			return c.Render(http.StatusOK, "partial.rows", data)
+		} else {
+			contacts := data.GetContacts()
+			data := map[string]interface{}{
+				"Contacts": contacts.Contacts,
+				"Archive":  contacts,
+				"Query":    search,
+			}
+			return c.Render(http.StatusOK, "partial.rows", data)
 		}
-		return c.Render(http.StatusOK, "rows", data)
 	}
 	contacts := data.GetContacts()
 	data := map[string]interface{}{
