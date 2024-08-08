@@ -50,7 +50,17 @@ func getContacts(c echo.Context) error {
 	return c.Render(http.StatusOK, "layout", data)
 }
 
-func getContactsNew(c echo.Context) error  { return nil }
+func getContactsNew(c echo.Context) error {
+	data := map[string]interface{}{
+		"Contact": map[string]string{
+			"First": "",
+			"Last":  "",
+			"Email": "",
+			"Phone": "",
+		},
+	}
+	return c.Render(http.StatusOK, "new", data)
+}
 func postContactsNew(c echo.Context) error { return nil }
 func getContact(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -58,7 +68,10 @@ func getContact(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
 	}
-	return c.JSON(http.StatusOK, contact)
+	data := map[string]interface{}{
+		"Contact": contact,
+	}
+	return c.Render(http.StatusOK, "view", data)
 }
 
 func getContactEmail(c echo.Context) error        { return nil }
