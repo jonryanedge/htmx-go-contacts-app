@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"go.scuttlebutt.app/internal/data"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -39,4 +41,32 @@ func GetSelectedContacts(c echo.Context, key string) []string {
 	}
 	var list []string
 	return list
+}
+
+func GetContactData(c echo.Context) data.Contact {
+	req := c.Request()
+	req.ParseForm()
+
+	var first, last, email, phone string
+	for k, v := range req.Form {
+		if k == "first_name" {
+			first = v[0]
+		}
+		if k == "last_name" {
+			last = v[0]
+		}
+		if k == "email" {
+			email = v[0]
+		}
+		if k == "phone" {
+			phone = v[0]
+		}
+	}
+	contact := data.Contact{
+		First: first,
+		Last:  last,
+		Email: email,
+		Phone: phone,
+	}
+	return contact
 }
