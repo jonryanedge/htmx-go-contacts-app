@@ -27,3 +27,16 @@ func GetHeaders(c echo.Context, key string) string {
 
 	return trigger
 }
+
+func GetSelectedContacts(c echo.Context, key string) []string {
+	req := c.Request()
+	req.ParseForm()
+
+	for k, v := range req.Form {
+		if k == key {
+			return v
+		}
+	}
+	var list []string
+	return list
+}
