@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"go.scuttlebutt.app/internal/data"
+	"go.igmp.app/internal/data"
 
 	"github.com/labstack/echo/v4"
 )

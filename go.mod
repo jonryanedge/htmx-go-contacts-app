@@ -1,4 +1,4 @@
-module go.scuttlebutt.app
+module go.igmp.app
 
 go 1.22.5
 
