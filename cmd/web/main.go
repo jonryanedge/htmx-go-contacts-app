@@ -56,7 +56,7 @@ func main() {
 	e.GET("/contacts/:id/edit", getContactEdit)
 	e.POST("/contacts/:id/edit", postContactEdit)
 	e.DELETE("/contacts/:id", deleteContact)
-	e.DELETE("/contacts/", deleteContacts)
+	e.POST("/contacts/delete", deleteContacts)
 	e.GET("/contacts/archive", getContactsArchive)
 	e.POST("/contacts/archive", postContactsArchive)
 	e.DELETE("/contacts/archive", deleteContactsArchive)

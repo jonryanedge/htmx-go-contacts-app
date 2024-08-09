@@ -22,7 +22,7 @@
             
             <button type="button" class="bad bg color border"
                 @click="confirm(`Delete ${selected.length} contacts?`) &&
-                    htmx.ajax('DELETE', '/contacts', { source: $root, target: document.body })"
+                    htmx.ajax('POST', '/contacts/delete', { source: $root, target: document.body })"
             >Delete</button>
             <hr aria-orientation="vertical">
             <button type="button" @click="selected = []">Cancel</button> 
