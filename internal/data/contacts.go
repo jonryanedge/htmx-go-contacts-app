@@ -73,18 +73,33 @@ func GetContacts() Contacts {
 	defer file.Close()
 
 	byteData, _ := io.ReadAll(file)
-
-	// fmt.Println("ByteData:" + string(byteData))
 	var contacts Contacts
-
 	json.Unmarshal(byteData, &contacts.Contacts)
 
-	// for i := 0; i < len(contacts.Contacts); i++ {
-	// 	fmt.Println("Name: " + contacts.Contacts[i].First + " " + contacts.Contacts[i].Last)
-	// }
-
 	return contacts
+}
 
+func DeleteContact(id int) error {
+	file, err := os.Open(contactsFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer file.Close()
+
+	byteData, _ := io.ReadAll(file)
+	var contacts Contacts
+	json.Unmarshal(byteData, &contacts.Contacts)
+
+	var keepers []Contact
+	for _, data := range contacts.Contacts {
+		if id != data.ID {
+			keepers = append(keepers, data)
+		}
+	}
+	out, err := json.MarshalIndent(keepers, "", "\t")
+	err = os.WriteFile(contactsFile, out, 0644)
+	return nil
 }
 
 func SearchContacts(q string) Contacts {

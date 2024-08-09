@@ -103,7 +103,14 @@ func deleteContact(c echo.Context) error {
 	return c.Redirect(http.StatusSeeOther, "/contacts")
 }
 
-func deleteContacts(c echo.Context) error         { return nil }
+func deleteContacts(c echo.Context) error {
+	selections := GetSelectedContacts(c, "selected_contact_ids")
+	for _, sel := range selections {
+		id, _ := strconv.Atoi(sel)
+		data.DeleteContact(id)
+	}
+	return c.Redirect(http.StatusSeeOther, "/contacts")
+}
 func getContactsArchive(c echo.Context) error     { return nil }
 func postContactsArchive(c echo.Context) error    { return nil }
 func deleteContactsArchive(c echo.Context) error  { return nil }
