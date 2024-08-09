@@ -63,7 +63,15 @@ func getContactsNew(c echo.Context) error {
 	return c.Render(http.StatusOK, "new", data)
 }
 
-func postContactsNew(c echo.Context) error { return nil }
+func postContactsNew(c echo.Context) error {
+	input := GetContactData(c)
+	err := data.AddContact(input)
+	if err != nil {
+		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
+	}
+	return c.Redirect(http.StatusSeeOther, "/contacts")
+}
+
 func getContact(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	contact, err := data.GetContact(id)
@@ -111,11 +119,14 @@ func deleteContacts(c echo.Context) error {
 	}
 	return c.Redirect(http.StatusSeeOther, "/contacts")
 }
+
+// ARCHIVE handlers
 func getContactsArchive(c echo.Context) error     { return nil }
 func postContactsArchive(c echo.Context) error    { return nil }
 func deleteContactsArchive(c echo.Context) error  { return nil }
 func getContactsArchiveFile(c echo.Context) error { return nil }
 
+// Feature handlers
 func getContactsCount(c echo.Context) error {
 	count := data.GetContactCount()
 	return c.String(http.StatusOK, "("+strconv.Itoa(count)+" total contacts)")

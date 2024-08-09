@@ -79,6 +79,35 @@ func GetContacts() Contacts {
 	return contacts
 }
 
+func AddContact(c Contact) error {
+	file, err := os.Open(contactsFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer file.Close()
+
+	byteData, _ := io.ReadAll(file)
+	var contacts Contacts
+	json.Unmarshal(byteData, &contacts.Contacts)
+
+	lastId := contacts.Contacts[len(contacts.Contacts)-1].ID
+	nextId := lastId + 1
+
+	c.ID = nextId
+	contacts.Contacts = append(contacts.Contacts, c)
+
+	out, err := json.MarshalIndent(contacts.Contacts, "", "\t")
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(contactsFile, out, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func DeleteContact(id int) error {
 	file, err := os.Open(contactsFile)
 	if err != nil {
@@ -98,7 +127,13 @@ func DeleteContact(id int) error {
 		}
 	}
 	out, err := json.MarshalIndent(keepers, "", "\t")
+	if err != nil {
+		return err
+	}
 	err = os.WriteFile(contactsFile, out, 0644)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
