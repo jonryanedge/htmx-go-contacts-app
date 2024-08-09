@@ -84,7 +84,15 @@ func getContact(c echo.Context) error {
 	return c.Render(http.StatusOK, "view", data)
 }
 
-func getContactEmail(c echo.Context) error { return nil }
+func getContactEmail(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	contact, err := data.GetContact(id)
+	if err != nil {
+		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
+	}
+	return c.String(http.StatusOK, fmt.Sprintf("%s", contact.Email))
+}
+
 func getContactEdit(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	contact, err := data.GetContact(id)
@@ -97,7 +105,16 @@ func getContactEdit(c echo.Context) error {
 	return c.Render(http.StatusOK, "edit", data)
 }
 
-func postContactEdit(c echo.Context) error { return nil }
+func postContactEdit(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	input := GetContactData(c)
+	err := data.UpdateContact(id, input)
+	if err != nil {
+		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
+	}
+	return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/contacts/%d", id))
+}
+
 func deleteContact(c echo.Context) error {
 	trigger := GetHeaders(c, "HX-Trigger")
 	id, _ := strconv.Atoi(c.Param("id"))
