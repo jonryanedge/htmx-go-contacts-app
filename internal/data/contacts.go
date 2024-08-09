@@ -108,6 +108,45 @@ func AddContact(c Contact) error {
 	return nil
 }
 
+func UpdateContact(id int, c Contact) error {
+	file, err := os.Open(contactsFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer file.Close()
+
+	byteData, _ := io.ReadAll(file)
+	var contacts Contacts
+	json.Unmarshal(byteData, &contacts.Contacts)
+
+	var keepers []Contact
+	for _, data := range contacts.Contacts {
+		if id == data.ID {
+			data.First = c.First
+			data.Last = c.Last
+			data.Email = c.Email
+			data.Phone = c.Phone
+
+			keepers = append(keepers, data)
+		}
+		if id != data.ID {
+			keepers = append(keepers, data)
+		}
+	}
+
+	out, err := json.MarshalIndent(keepers, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(contactsFile, out, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func DeleteContact(id int) error {
 	file, err := os.Open(contactsFile)
 	if err != nil {
