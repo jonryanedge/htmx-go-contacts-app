@@ -27,7 +27,7 @@ func getContacts(c echo.Context) error {
 			contacts := data.SearchContacts(search)
 			data := map[string]interface{}{
 				"Contacts": contacts.Contacts,
-				"Archive":  contacts,
+				"Archiver": data.GetArchiver(),
 				"Query":    search,
 			}
 			return c.Render(http.StatusOK, "partial.rows", data)
@@ -35,7 +35,7 @@ func getContacts(c echo.Context) error {
 			contacts := data.GetContacts()
 			data := map[string]interface{}{
 				"Contacts": contacts.Contacts,
-				"Archive":  contacts,
+				"Archiver": data.GetArchiver(),
 				"Query":    search,
 			}
 			return c.Render(http.StatusOK, "partial.rows", data)
@@ -44,7 +44,7 @@ func getContacts(c echo.Context) error {
 	contacts := data.GetContacts()
 	data := map[string]interface{}{
 		"Contacts": contacts.Contacts,
-		"Archive":  contacts,
+		"Archiver": data.GetArchiver(),
 	}
 	// data := fmt.Sprintf("contacts: %s\n", contacts)
 	// return c.JSON(http.StatusOK, contacts)
@@ -138,10 +138,22 @@ func deleteContacts(c echo.Context) error {
 }
 
 // ARCHIVE handlers
-func getContactsArchive(c echo.Context) error     { return nil }
-func postContactsArchive(c echo.Context) error    { return nil }
-func deleteContactsArchive(c echo.Context) error  { return nil }
-func getContactsArchiveFile(c echo.Context) error { return nil }
+func getContactsArchive(c echo.Context) error {
+	// archiver := data.GetArchiver()
+	return nil
+}
+func postContactsArchive(c echo.Context) error {
+	// archiver := data.GetArchiver()
+	return nil
+}
+func deleteContactsArchive(c echo.Context) error {
+	// archiver := data.GetArchiver()
+	return nil
+}
+func getContactsArchiveFile(c echo.Context) error {
+	// archiver := data.GetArchiver()
+	return nil
+}
 
 // Feature handlers
 func getContactsCount(c echo.Context) error {

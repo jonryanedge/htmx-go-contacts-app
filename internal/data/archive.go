@@ -12,12 +12,11 @@ type Archive struct {
 }
 
 type Archiver interface {
-	Get() Archive
 	GetArchive() Archive
 	GetArchiveStatus() string
 }
 
-func Get() Archive {
+func GetArchiver() Archive {
 	a := Archive{
 		Status:   "Waiting",
 		Progress: 0,
