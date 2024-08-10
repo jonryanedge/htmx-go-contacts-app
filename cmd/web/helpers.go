@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"go.igmp.app/internal/data"
+	"go.igmp.app/internal/contacts"
 
 	"github.com/labstack/echo/v4"
 )
@@ -43,7 +43,7 @@ func GetSelectedContacts(c echo.Context, key string) []string {
 	return list
 }
 
-func GetContactData(c echo.Context) data.Contact {
+func GetContactData(c echo.Context) contacts.Contact {
 	req := c.Request()
 	req.ParseForm()
 
@@ -62,7 +62,7 @@ func GetContactData(c echo.Context) data.Contact {
 			phone = v[0]
 		}
 	}
-	contact := data.Contact{
+	contact := contacts.Contact{
 		First: first,
 		Last:  last,
 		Email: email,
