@@ -8,6 +8,7 @@ import (
 
 	"go.igmp.app/internal/archiver"
 	// "go.igmp.app/internal/contacts"
+	"go.igmp.app/ui"
 
 	"github.com/labstack/echo/v4"
 )
@@ -45,13 +46,13 @@ func main() {
 	e := echo.New()
 
 	templates := make(map[string]*template.Template)
-	templates["archive"] = template.Must(template.ParseFiles("ui/html/archive.html"))
-	templates["rows"] = template.Must(template.ParseFiles("ui/html/rows.html"))
-	templates["new"] = template.Must(template.ParseFiles("ui/html/new.html", "ui/html/base.html"))
-	templates["view"] = template.Must(template.ParseFiles("ui/html/view.html", "ui/html/base.html"))
-	templates["edit"] = template.Must(template.ParseFiles("ui/html/edit.html", "ui/html/base.html"))
-	templates["layout"] = template.Must(template.ParseFiles("ui/html/archive.html", "ui/html/rows.html", "ui/html/controls.html", "ui/html/layout.html", "ui/html/base.html"))
-	templates["home"] = template.Must(template.ParseFiles("ui/html/home.html", "ui/html/base.html"))
+	templates["archive"] = template.Must(template.ParseFS(ui.Files, "html/archive.html"))
+	templates["rows"] = template.Must(template.ParseFS(ui.Files, "html/rows.html"))
+	templates["new"] = template.Must(template.ParseFS(ui.Files, "html/new.html", "html/base.html"))
+	templates["view"] = template.Must(template.ParseFS(ui.Files, "html/view.html", "html/base.html"))
+	templates["edit"] = template.Must(template.ParseFS(ui.Files, "html/edit.html", "html/base.html"))
+	templates["layout"] = template.Must(template.ParseFS(ui.Files, "html/archive.html", "html/rows.html", "html/controls.html", "html/layout.html", "html/base.html"))
+	templates["home"] = template.Must(template.ParseFS(ui.Files, "html/home.html", "html/base.html"))
 	e.Renderer = &TemplateRegistry{
 		templates: templates,
 	}
@@ -73,7 +74,7 @@ func main() {
 	e.GET("contacts/archive/file", app.getContactsArchiveFile)
 	e.GET("contacts/count", app.getContactsCount)
 	e.Debug = true
-	e.Static("/static", "static")
+	e.Static("/static", "ui/static")
 
 	e.Logger.Fatal(e.Start(":3333"))
 }
