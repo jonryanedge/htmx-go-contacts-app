@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"strconv"
+	"sync"
 	"time"
 )
 
@@ -16,36 +16,55 @@ type Archiver interface {
 	GetArchiveStatus() string
 }
 
+var (
+	archive Archive
+	mu      sync.Mutex
+)
+
+var archiver = Archive{
+	Status:   "Waiting",
+	Progress: 0,
+}
+
 func GetArchiver() Archive {
-	a := Archive{
-		Status:   "Waiting",
-		Progress: 0,
-	}
-	return a
+	mu.Lock()
+	defer mu.Unlock()
+	// a := Archive{
+	// 	Status:   "Waiting",
+	// 	Progress: 0,
+	// }
+	return archiver
 }
 
 func (a *Archive) GetArchive() Archive {
-	return *a
+	fmt.Printf("archive: %s", archive.Status)
+	mu.Lock()
+	defer mu.Unlock()
+	return archive
 }
 
 func (a *Archive) GetArchiveStatus() string {
-	status := &a.Status
-	return *status
+	mu.Lock()
+	defer mu.Unlock()
+	return archive.Status
 }
 
 func (a *Archive) GetArchiveProgress() int {
-	progress := &a.Progress
-	return *progress
+	mu.Lock()
+	defer mu.Unlock()
+	return archive.Progress
 }
 
 func (a *Archive) RunArchive() {
+	mu.Lock()
+	defer mu.Unlock()
 	for i := range [10]int{} {
 		time.Sleep(time.Second)
 		if a.Status != "Running" {
 			return
 		}
-		a.Progress = (i + 1) / 10
-		fmt.Printf("Here... %s", strconv.Itoa(a.Progress))
+		a.Progress = (i + 1) * 10
+		fmt.Printf("Here... %d\n", a.Progress)
 	}
 	time.Sleep(time.Second)
 	if a.Status != "Running" {
@@ -55,6 +74,8 @@ func (a *Archive) RunArchive() {
 }
 
 func (a *Archive) Run() {
+	mu.Lock()
+	defer mu.Unlock()
 	if a.Status == "Waiting" {
 		a.Status = "Running"
 		a.Progress = 0
@@ -67,5 +88,8 @@ func (a *Archive) File() string {
 }
 
 func (a *Archive) Reset() {
+	mu.Lock()
+	defer mu.Unlock()
 	a.Status = "Waiting"
+	a.Progress = 0
 }
