@@ -6,11 +6,15 @@ import (
 	"io"
 	"strings"
 
+	"go.igmp.app/internal/archiver"
+	// "go.igmp.app/internal/contacts"
+
 	"github.com/labstack/echo/v4"
 )
 
 type app struct {
-	debug bool
+	archive archiver.Archiver
+	debug   bool
 }
 
 type TemplateRegistry struct {
@@ -33,6 +37,11 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func main() {
+	app := app{
+		archive: *archiver.NewArchiver(),
+		debug:   false,
+	}
+
 	e := echo.New()
 
 	templates := make(map[string]*template.Template)
@@ -47,22 +56,22 @@ func main() {
 		templates: templates,
 	}
 
-	e.GET("/", getIndex)
-	e.GET("/home", getIndex)
-	e.GET("/contacts", getContacts)
-	e.GET("/contacts/new", getContactsNew)
-	e.POST("/contacts/new", postContactsNew)
-	e.GET("/contacts/:id", getContact)
-	e.GET("/contacts/:id/email", getContactEmail)
-	e.GET("/contacts/:id/edit", getContactEdit)
-	e.POST("/contacts/:id/edit", postContactEdit)
-	e.DELETE("/contacts/:id", deleteContact)
-	e.POST("/contacts/delete", deleteContacts)
-	e.GET("/contacts/archive", getContactsArchive)
-	e.POST("/contacts/archive", postContactsArchive)
-	e.DELETE("/contacts/archive", deleteContactsArchive)
-	e.GET("contacts/archive/file", getContactsArchiveFile)
-	e.GET("contacts/count", getContactsCount)
+	e.GET("/", app.redirectIndex)
+	e.GET("/home", app.getIndex)
+	e.GET("/contacts", app.getContacts)
+	e.GET("/contacts/new", app.getContactsNew)
+	e.POST("/contacts/new", app.postContactsNew)
+	e.GET("/contacts/:id", app.getContact)
+	e.GET("/contacts/:id/email", app.getContactEmail)
+	e.GET("/contacts/:id/edit", app.getContactEdit)
+	e.POST("/contacts/:id/edit", app.postContactEdit)
+	e.DELETE("/contacts/:id", app.deleteContact)
+	e.POST("/contacts/delete", app.deleteContacts)
+	e.GET("/contacts/archive", app.getContactsArchive)
+	e.POST("/contacts/archive", app.postContactsArchive)
+	e.DELETE("/contacts/archive", app.deleteContactsArchive)
+	e.GET("contacts/archive/file", app.getContactsArchiveFile)
+	e.GET("contacts/count", app.getContactsCount)
 	e.Debug = true
 	e.Static("/static", "static")
 
