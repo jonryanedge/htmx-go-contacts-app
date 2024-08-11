@@ -75,7 +75,11 @@ func main() {
 	e.GET("/contacts/archive/file", app.getContactsArchiveFile)
 	e.GET("/contacts/count", app.getContactsCount)
 	e.Debug = true
+
+	// static file handler for running development
 	e.Static("/static", "ui/static")
+
+	// static file handler for server binary
 	// e.GET("/static/*", echo.WrapHandler(http.StripPrefix("/static/", http.FileServer(http.FS(ui.Files)))))
 
 	e.Logger.Fatal(e.Start(":3333"))
