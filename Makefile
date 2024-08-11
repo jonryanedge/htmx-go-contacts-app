@@ -1,6 +1,9 @@
 # Include variable from .envrc file
 include .envrc
 
+# Include server ops 
+include ./server/Makefile
+
 ## help: print this help message
 .PHONY: help
 help:
@@ -24,4 +27,5 @@ air:
 ## build: build minimzed app and save to .tmp directory
 .PHONY: build
 build:
-	go build -ldflags='s' -o=./tmp/bin ./cmd/web
+	go build -ldflags='-s' -o=./tmp/bin ./cmd/web
+	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./tmp/linux_amd64/igmp ./cmd/web
