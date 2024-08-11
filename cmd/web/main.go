@@ -4,6 +4,7 @@ import (
 	"errors"
 	"html/template"
 	"io"
+	// "net/http"
 	"strings"
 
 	"go.igmp.app/internal/archiver"
@@ -71,10 +72,11 @@ func main() {
 	e.GET("/contacts/archive", app.getContactsArchive)
 	e.POST("/contacts/archive", app.postContactsArchive)
 	e.DELETE("/contacts/archive", app.deleteContactsArchive)
-	e.GET("contacts/archive/file", app.getContactsArchiveFile)
-	e.GET("contacts/count", app.getContactsCount)
+	e.GET("/contacts/archive/file", app.getContactsArchiveFile)
+	e.GET("/contacts/count", app.getContactsCount)
 	e.Debug = true
 	e.Static("/static", "ui/static")
+	// e.GET("/static/*", echo.WrapHandler(http.StripPrefix("/static/", http.FileServer(http.FS(ui.Files)))))
 
 	e.Logger.Fatal(e.Start(":3333"))
 }
