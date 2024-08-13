@@ -24,7 +24,7 @@
         {{ template "rows" .}}
         </tbody>
     </table>
-        <button hx-delete="/contacts"
+        <button hx-post="/contacts/delete"
                 hx-confirm="Are you sure you want to delete these contacts?"
                 hx-target="body">
             Delete Selected Contacts
