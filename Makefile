@@ -2,7 +2,7 @@
 include .envrc
 
 # Include server ops 
-include ./server/Makefile
+include ./servers/Makefile
 
 ## help: print this help message
 .PHONY: help
