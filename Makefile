@@ -1,8 +1,5 @@
-# Include variable from .envrc file
-include .envrc
-
-# Include server ops 
-include ./servers/Makefile
+# Include variable from .env file
+include .env
 
 ## help: print this help message
 .PHONY: help
@@ -27,8 +24,8 @@ air:
 ## build: build minimzed app and save to .tmp directory
 .PHONY: build
 build:
-	go build -ldflags='-s' -o=./tmp/bin ./cmd/web
-	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./tmp/linux_amd64/igmp ./cmd/web
+	go build -ldflags='-s' -o=./tmp/bin/${SVC} ./cmd/web
+	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./tmp/linux_amd64/${SVC} ./cmd/web
 
 ## host/ssh: ssh to host server
 .PHONY: host/ssh
@@ -38,9 +35,19 @@ host/ssh:
 ## host/push: copy linux build to host server
 .PHONY: host/push
 host/push:
-	scp -i ${USERKEY} ./tmp/linux_amd64/igmp root@${HOST}:/srv/igmp/igmp
+	scp -i ${USERKEY} ./tmp/linux_amd64/${SVC} root@${HOST}:/srv/${SVC}/${SVC}
 
 ## host/svc: copy service file to host server
 .PHONY: host/svc
 host/svc:
-	scp -i ${USERKEY} ./igmp.service root@${HOST}:/etc/systemd/system/igmp.service
+	scp -i ${USERKEY} ./${SVC}.service root@${HOST}:/etc/systemd/system/${SVC}.service
+
+## host/start: start service
+.PHONY: host/start
+host/start:
+	ssh -i ${USERKEY} root@${HOST} 'systemctl start ${SVC}.service'
+
+## host/stop: stop service
+.PHONY: host/stop
+host/stop:
+	ssh -i ${USERKEY} root@${HOST} 'systemctl stop ${SVC}.service'
