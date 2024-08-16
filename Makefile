@@ -29,3 +29,18 @@ air:
 build:
 	go build -ldflags='-s' -o=./tmp/bin ./cmd/web
 	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./tmp/linux_amd64/igmp ./cmd/web
+
+## host/ssh: ssh to host server
+.PHONY: host/ssh
+host/ssh:
+	ssh -i ${USERKEY} root@${HOST}
+
+## host/push: copy linux build to host server
+.PHONY: host/push
+host/push:
+	scp -i ${USERKEY} ./tmp/linux_amd64/igmp root@${HOST}:/srv/igmp/igmp
+
+## host/svc: copy service file to host server
+.PHONY: host/svc
+host/svc:
+	scp -i ${USERKEY} ./igmp.service root@${HOST}:/etc/systemd/system/igmp.service
