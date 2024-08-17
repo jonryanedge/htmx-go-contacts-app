@@ -2,15 +2,19 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
-	// "net/http"
+	"net/http"
+	"os"
+	"strconv"
 	"strings"
 
 	"go.igmp.app/internal/archiver"
 	// "go.igmp.app/internal/contacts"
 	"go.igmp.app/ui"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
@@ -39,9 +43,16 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func main() {
+	err := godotenv.Load()
+	isDebug, err := strconv.ParseBool(os.Getenv("DEBUG"))
+	if err != nil {
+		isDebug = false
+		fmt.Println("no debug")
+	}
+
 	app := app{
 		archive: *archiver.NewArchiver(),
-		debug:   false,
+		debug:   isDebug,
 	}
 
 	e := echo.New()
@@ -74,13 +85,15 @@ func main() {
 	e.DELETE("/contacts/archive", app.deleteContactsArchive)
 	e.GET("/contacts/archive/file", app.getContactsArchiveFile)
 	e.GET("/contacts/count", app.getContactsCount)
-	e.Debug = true
+	e.Debug = isDebug
 
-	// static file handler for running development
-	e.Static("/static", "ui/static")
-
-	// static file handler for server binary
-	// e.GET("/static/*", echo.WrapHandler(http.StripPrefix("/static/", http.FileServer(http.FS(ui.Files)))))
+	if isDebug {
+		// static file handler for running development
+		e.Static("/static", "ui/static")
+	} else {
+		// static file handler for server binary
+		e.GET("/static/*", echo.WrapHandler(http.FileServer(http.FS(ui.Files))))
+	}
 
 	e.Logger.Fatal(e.Start(":3333"))
 }
