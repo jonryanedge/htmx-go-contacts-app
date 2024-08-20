@@ -1,45 +1,22 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"html/template"
-	"io"
+	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
+	"time"
 
 	"go.igmp.app/internal/archiver"
-	// "go.igmp.app/internal/contacts"
-	"go.igmp.app/ui"
 
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
 )
 
 type app struct {
 	archive archiver.Archiver
 	debug   bool
-}
-
-type TemplateRegistry struct {
-	templates map[string]*template.Template
-}
-
-func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	base := "base"
-	if strings.Contains(name, ".") {
-		parts := strings.Split(name, ".")
-		name = parts[1]
-		base = parts[0]
-	}
-	tmpl, ok := t.templates[name]
-	if !ok {
-		err := errors.New("Template not found ->" + name)
-		return err
-	}
-	return tmpl.ExecuteTemplate(w, base, data)
 }
 
 func main() {
@@ -49,51 +26,30 @@ func main() {
 		isDebug = false
 		fmt.Println("no debug")
 	}
+	addr := os.Getenv("ADDR")
+	if "" == addr {
+		addr = ":3333"
+	}
 
 	app := app{
 		archive: *archiver.NewArchiver(),
 		debug:   isDebug,
 	}
 
-	e := echo.New()
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	templates := make(map[string]*template.Template)
-	templates["archive"] = template.Must(template.ParseFS(ui.Files, "html/archive.html"))
-	templates["rows"] = template.Must(template.ParseFS(ui.Files, "html/rows.html"))
-	templates["new"] = template.Must(template.ParseFS(ui.Files, "html/new.html", "html/base.html"))
-	templates["view"] = template.Must(template.ParseFS(ui.Files, "html/view.html", "html/base.html"))
-	templates["edit"] = template.Must(template.ParseFS(ui.Files, "html/edit.html", "html/base.html"))
-	templates["layout"] = template.Must(template.ParseFS(ui.Files, "html/archive.html", "html/rows.html", "html/controls.html", "html/layout.html", "html/base.html"))
-	templates["home"] = template.Must(template.ParseFS(ui.Files, "html/home.html", "html/base.html"))
-	e.Renderer = &TemplateRegistry{
-		templates: templates,
+	srv := &http.Server{
+		Addr:         addr,
+		Handler:      app.routes(),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
-	e.GET("/", app.redirectIndex)
-	e.GET("/home", app.getIndex)
-	e.GET("/contacts", app.getContacts)
-	e.GET("/contacts/new", app.getContactsNew)
-	e.POST("/contacts/new", app.postContactsNew)
-	e.GET("/contacts/:id", app.getContact)
-	e.GET("/contacts/:id/email", app.getContactEmail)
-	e.GET("/contacts/:id/edit", app.getContactEdit)
-	e.POST("/contacts/:id/edit", app.postContactEdit)
-	e.DELETE("/contacts/:id", app.deleteContact)
-	e.POST("/contacts/delete", app.deleteContacts)
-	e.GET("/contacts/archive", app.getContactsArchive)
-	e.POST("/contacts/archive", app.postContactsArchive)
-	e.DELETE("/contacts/archive", app.deleteContactsArchive)
-	e.GET("/contacts/archive/file", app.getContactsArchiveFile)
-	e.GET("/contacts/count", app.getContactsCount)
-	e.Debug = isDebug
-
-	if isDebug {
-		// static file handler for running development
-		e.Static("/static", "ui/static")
-	} else {
-		// static file handler for server binary
-		e.GET("/static/*", echo.WrapHandler(http.FileServer(http.FS(ui.Files))))
+	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		log.Fatal(err)
 	}
 
-	e.Logger.Fatal(e.Start(":3333"))
+	// e.Logger.Fatal(e.Start(":3333"))
 }
