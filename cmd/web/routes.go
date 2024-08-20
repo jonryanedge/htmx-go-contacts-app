@@ -1,175 +1,54 @@
 package main
 
 import (
-	//  "encoding/json"
-	"fmt"
+	"html/template"
 	"net/http"
-	"strconv"
 
-	"go.igmp.app/internal/contacts"
+	"go.igmp.app/ui"
 
 	"github.com/labstack/echo/v4"
 )
 
-func (app *app) getIndex(c echo.Context) error {
-	return c.Render(http.StatusOK, "home", nil)
-}
+func (app *app) routes() http.Handler {
+	e := echo.New()
 
-func (app *app) redirectIndex(c echo.Context) error {
-	return c.Redirect(http.StatusMovedPermanently, "/contacts")
-}
+	templates := make(map[string]*template.Template)
+	templates["archive"] = template.Must(template.ParseFS(ui.Files, "html/archive.html"))
+	templates["rows"] = template.Must(template.ParseFS(ui.Files, "html/rows.html"))
+	templates["new"] = template.Must(template.ParseFS(ui.Files, "html/new.html", "html/base.html"))
+	templates["view"] = template.Must(template.ParseFS(ui.Files, "html/view.html", "html/base.html"))
+	templates["edit"] = template.Must(template.ParseFS(ui.Files, "html/edit.html", "html/base.html"))
+	templates["layout"] = template.Must(template.ParseFS(ui.Files, "html/archive.html", "html/rows.html", "html/controls.html", "html/layout.html", "html/base.html"))
+	templates["home"] = template.Must(template.ParseFS(ui.Files, "html/home.html", "html/base.html"))
+	e.Renderer = &TemplateRegistry{
+		templates: templates,
+	}
 
-func (app *app) getContacts(c echo.Context) error {
-	trigger := GetHeaders(c, "HX-Trigger")
-	if trigger == "search" {
-		search := c.QueryParam("q")
-		if search != "" {
-			contacts := contacts.SearchContacts(search)
-			data := map[string]interface{}{
-				"Contacts": contacts.Contacts,
-				"Archiver": &app.archive,
-				"Query":    search,
-			}
-			return c.Render(http.StatusOK, "partial.rows", data)
-		} else {
-			contacts := contacts.GetContacts()
-			data := map[string]interface{}{
-				"Contacts": contacts.Contacts,
-				"Archiver": &app.archive,
-				"Query":    search,
-			}
-			return c.Render(http.StatusOK, "partial.rows", data)
-		}
-	}
-	contacts := contacts.GetContacts()
-	data := map[string]interface{}{
-		"Contacts": contacts.Contacts,
-		"Archiver": &app.archive,
-	}
-	// data := fmt.Sprintf("contacts: %s\n", contacts)
-	// return c.JSON(http.StatusOK, contacts)
-	return c.Render(http.StatusOK, "layout", data)
-}
+	e.GET("/", app.redirectIndex)
+	e.GET("/home", app.getIndex)
+	e.GET("/contacts", app.getContacts)
+	e.GET("/contacts/new", app.getContactsNew)
+	e.POST("/contacts/new", app.postContactsNew)
+	e.GET("/contacts/:id", app.getContact)
+	e.GET("/contacts/:id/email", app.getContactEmail)
+	e.GET("/contacts/:id/edit", app.getContactEdit)
+	e.POST("/contacts/:id/edit", app.postContactEdit)
+	e.DELETE("/contacts/:id", app.deleteContact)
+	e.POST("/contacts/delete", app.deleteContacts)
+	e.GET("/contacts/archive", app.getContactsArchive)
+	e.POST("/contacts/archive", app.postContactsArchive)
+	e.DELETE("/contacts/archive", app.deleteContactsArchive)
+	e.GET("/contacts/archive/file", app.getContactsArchiveFile)
+	e.GET("/contacts/count", app.getContactsCount)
+	e.Debug = app.debug
 
-func (app *app) getContactsNew(c echo.Context) error {
-	data := map[string]interface{}{
-		"Contact": map[string]string{
-			"First": "",
-			"Last":  "",
-			"Email": "",
-			"Phone": "",
-		},
+	if app.debug {
+		// static file handler for running development
+		e.Static("/static", "ui/static")
+	} else {
+		// static file handler for server binary
+		e.GET("/static/*", echo.WrapHandler(http.FileServer(http.FS(ui.Files))))
 	}
-	return c.Render(http.StatusOK, "new", data)
-}
 
-func (app *app) postContactsNew(c echo.Context) error {
-	input := GetContactData(c)
-	err := contacts.AddContact(input)
-	if err != nil {
-		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
-	}
-	return c.Redirect(http.StatusSeeOther, "/contacts")
-}
-
-func (app *app) getContact(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	contact, err := contacts.GetContact(id)
-	if err != nil {
-		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
-	}
-	data := map[string]interface{}{
-		"Contact": contact,
-	}
-	return c.Render(http.StatusOK, "view", data)
-}
-
-func (app *app) getContactEmail(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	contact, err := contacts.GetContact(id)
-	if err != nil {
-		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
-	}
-	return c.String(http.StatusOK, fmt.Sprintf("%s", contact.Email))
-}
-
-func (app *app) getContactEdit(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	contact, err := contacts.GetContact(id)
-	if err != nil {
-		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
-	}
-	data := map[string]interface{}{
-		"Contact": contact,
-	}
-	return c.Render(http.StatusOK, "edit", data)
-}
-
-func (app *app) postContactEdit(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	input := GetContactData(c)
-	err := contacts.UpdateContact(id, input)
-	if err != nil {
-		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
-	}
-	return c.Redirect(http.StatusSeeOther, fmt.Sprintf("/contacts/%d", id))
-}
-
-func (app *app) deleteContact(c echo.Context) error {
-	trigger := GetHeaders(c, "HX-Trigger")
-	id, _ := strconv.Atoi(c.Param("id"))
-	err := contacts.DeleteContact(id)
-	if err != nil {
-		return c.String(http.StatusOK, fmt.Sprintf("error: %s", err))
-	}
-	if trigger != "delete-btn" {
-		return c.String(http.StatusOK, "")
-	}
-	return c.Redirect(http.StatusSeeOther, "/contacts")
-}
-
-func (app *app) deleteContacts(c echo.Context) error {
-	selections := GetSelectedContacts(c, "selected_contact_ids")
-	for _, sel := range selections {
-		id, _ := strconv.Atoi(sel)
-		contacts.DeleteContact(id)
-	}
-	return c.Redirect(http.StatusSeeOther, "/contacts")
-}
-
-// ARCHIVE handlers
-func (app *app) getContactsArchive(c echo.Context) error {
-	archiver := &app.archive
-	data := map[string]interface{}{
-		"Archiver": archiver,
-	}
-	return c.Render(http.StatusOK, "partial.archive", data)
-}
-func (app *app) postContactsArchive(c echo.Context) error {
-	archiver := &app.archive
-	archiver.Run()
-	data := map[string]interface{}{
-		"Archiver": archiver,
-	}
-	return c.Render(http.StatusOK, "partial.archive", data)
-}
-func (app *app) deleteContactsArchive(c echo.Context) error {
-	archiver := &app.archive
-	archiver.Reset()
-	data := map[string]interface{}{
-		"Archiver": archiver,
-	}
-	return c.Render(http.StatusOK, "partial.archive", data)
-}
-func (app *app) getContactsArchiveFile(c echo.Context) error {
-	c.Response().Header().Set("Content-Disposition", "attachment; filename=contacts.json")
-	c.Response().Header().Set("Content-Type", c.Request().Header.Get("Content-Type"))
-	archiver := &app.archive
-	return c.File(archiver.ArchiveFile())
-}
-
-// Feature handlers
-func (app *app) getContactsCount(c echo.Context) error {
-	count := contacts.GetContactCount()
-	return c.String(http.StatusOK, "("+strconv.Itoa(count)+" total contacts)")
+	return e
 }
