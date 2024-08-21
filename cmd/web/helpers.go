@@ -1,28 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
 
 	"go.igmp.app/internal/contacts"
-
-	"github.com/labstack/echo/v4"
 )
 
-func GetHeadersFunc(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		req := c.Request()
-		headers := req.Header
-		trigger := headers.Get("HX-Trigger")
-
-		fmt.Println(trigger)
-
-		return next(c)
-	}
-}
-
-func GetHeaders(c echo.Context, key string) string {
-	req := c.Request()
-	headers := req.Header
+func GetHeaders(r *http.Request, key string) string {
+	headers := r.Header
 	trigger := headers.Get(key)
 
 	// fmt.Printf("%s: %s\n", key, trigger)
@@ -30,8 +15,8 @@ func GetHeaders(c echo.Context, key string) string {
 	return trigger
 }
 
-func GetSelectedContacts(c echo.Context, key string) []string {
-	req := c.Request()
+func GetSelectedContacts(r *http.Request, key string) []string {
+	req := r
 	req.ParseForm()
 
 	for k, v := range req.Form {
@@ -43,8 +28,8 @@ func GetSelectedContacts(c echo.Context, key string) []string {
 	return list
 }
 
-func GetContactData(c echo.Context) contacts.Contact {
-	req := c.Request()
+func GetContactData(r *http.Request) contacts.Contact {
+	req := r
 	req.ParseForm()
 
 	var first, last, email, phone string
