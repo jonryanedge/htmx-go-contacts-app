@@ -1,54 +1,38 @@
 package main
 
 import (
-	"html/template"
 	"net/http"
 
 	"go.igmp.app/ui"
 
-	"github.com/labstack/echo/v4"
+	"github.com/justinas/alice"
 )
 
 func (app *app) routes() http.Handler {
-	e := echo.New()
+	mux := http.NewServeMux()
 
-	templates := make(map[string]*template.Template)
-	templates["archive"] = template.Must(template.ParseFS(ui.Files, "html/archive.html"))
-	templates["rows"] = template.Must(template.ParseFS(ui.Files, "html/rows.html"))
-	templates["new"] = template.Must(template.ParseFS(ui.Files, "html/new.html", "html/base.html"))
-	templates["view"] = template.Must(template.ParseFS(ui.Files, "html/view.html", "html/base.html"))
-	templates["edit"] = template.Must(template.ParseFS(ui.Files, "html/edit.html", "html/base.html"))
-	templates["layout"] = template.Must(template.ParseFS(ui.Files, "html/archive.html", "html/rows.html", "html/controls.html", "html/layout.html", "html/base.html"))
-	templates["home"] = template.Must(template.ParseFS(ui.Files, "html/home.html", "html/base.html"))
-	e.Renderer = &TemplateRegistry{
-		templates: templates,
-	}
+	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
-	e.GET("/", app.redirectIndex)
-	e.GET("/home", app.getIndex)
-	e.GET("/contacts", app.getContacts)
-	e.GET("/contacts/new", app.getContactsNew)
-	e.POST("/contacts/new", app.postContactsNew)
-	e.GET("/contacts/:id", app.getContact)
-	e.GET("/contacts/:id/email", app.getContactEmail)
-	e.GET("/contacts/:id/edit", app.getContactEdit)
-	e.POST("/contacts/:id/edit", app.postContactEdit)
-	e.DELETE("/contacts/:id", app.deleteContact)
-	e.POST("/contacts/delete", app.deleteContacts)
-	e.GET("/contacts/archive", app.getContactsArchive)
-	e.POST("/contacts/archive", app.postContactsArchive)
-	e.DELETE("/contacts/archive", app.deleteContactsArchive)
-	e.GET("/contacts/archive/file", app.getContactsArchiveFile)
-	e.GET("/contacts/count", app.getContactsCount)
-	e.Debug = app.debug
+	dynamic := alice.New()
 
-	if app.debug {
-		// static file handler for running development
-		e.Static("/static", "ui/static")
-	} else {
-		// static file handler for server binary
-		e.GET("/static/*", echo.WrapHandler(http.FileServer(http.FS(ui.Files))))
-	}
+	mux.Handle("GET /", dynamic.ThenFunc(app.redirectIndex))
+	mux.Handle("GET /home", dynamic.ThenFunc(app.getIndex))
+	mux.Handle("GET /contacts", dynamic.ThenFunc(app.getContacts))
+	mux.Handle("GET /contacts/new", dynamic.ThenFunc(app.getContactsNew))
+	mux.Handle("POST /contacts/new", dynamic.ThenFunc(app.postContactsNew))
+	mux.Handle("GET /contacts/:id", dynamic.ThenFunc(app.getContact))
+	mux.Handle("GET /contacts/:id/email", dynamic.ThenFunc(app.getContactEmail))
+	mux.Handle("GET /contacts/:id/edit", dynamic.ThenFunc(app.getContactEdit))
+	mux.Handle("POST /contacts/:id/edit", dynamic.ThenFunc(app.postContactEdit))
+	mux.Handle("DELETE /contacts/:id", dynamic.ThenFunc(app.deleteContact))
+	mux.Handle("POST /contacts/delete", dynamic.ThenFunc(app.deleteContacts))
+	mux.Handle("GET /contacts/archive", dynamic.ThenFunc(app.getContactsArchive))
+	mux.Handle("POST /contacts/archive", dynamic.ThenFunc(app.postContactsArchive))
+	mux.Handle("DELETE /contacts/archive", dynamic.ThenFunc(app.deleteContactsArchive))
+	mux.Handle("GET /contacts/archive/file", dynamic.ThenFunc(app.getContactsArchiveFile))
+	mux.Handle("GET /contacts/count", dynamic.ThenFunc(app.getContactsCount))
 
-	return e
+	standard := alice.New()
+
+	return standard.Then(mux)
 }
