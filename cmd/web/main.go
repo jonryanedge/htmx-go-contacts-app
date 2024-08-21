@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"log/slog"
 	"net/http"
@@ -15,8 +16,10 @@ import (
 )
 
 type app struct {
-	archive archiver.Archiver
-	debug   bool
+	archive   archiver.Archiver
+	debug     bool
+	logger    *slog.Logger
+	templates map[string]*template.Template
 }
 
 func main() {
@@ -31,12 +34,20 @@ func main() {
 		addr = ":3333"
 	}
 
-	app := app{
-		archive: *archiver.NewArchiver(),
-		debug:   isDebug,
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	app := app{
+		archive:   *archiver.NewArchiver(),
+		debug:     isDebug,
+		logger:    logger,
+		templates: templateCache,
+	}
 
 	srv := &http.Server{
 		Addr:         addr,
@@ -50,6 +61,4 @@ func main() {
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
-
-	// e.Logger.Fatal(e.Start(":3333"))
 }
