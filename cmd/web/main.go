@@ -24,14 +24,23 @@ type app struct {
 
 func main() {
 	err := godotenv.Load()
+	if err != nil {
+    log.Fatal("Error loading .env file")
+  }
+
 	isDebug, err := strconv.ParseBool(os.Getenv("DEBUG"))
 	if err != nil {
 		isDebug = false
 		fmt.Println("no debug")
 	}
 	addr := os.Getenv("ADDR")
-	if "" == addr {
-		addr = ":3333"
+	if addr == "" {
+		addr = "0.0.0.0"
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":3333"
 	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -50,7 +59,7 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:         addr,
+		Addr:         addr+port,
 		Handler:      app.routes(),
 		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
 		IdleTimeout:  time.Minute,
@@ -58,6 +67,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
+	fmt.Println("Starting server")
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
