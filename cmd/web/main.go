@@ -35,12 +35,12 @@ func main() {
 	}
 	addr := os.Getenv("ADDR")
 	if addr == "" {
-		addr = "0.0.0.0"
+		addr = "127.0.0.1"
 	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = ":3333"
+		port = "8080"
 	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -59,7 +59,7 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:         addr+port,
+		Addr:         addr+":"+port,
 		Handler:      app.routes(),
 		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
 		IdleTimeout:  time.Minute,
@@ -67,7 +67,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	fmt.Println("Starting server")
+	fmt.Printf("Starting server on IP:%s Port:%s", addr, port)
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
